@@ -72,27 +72,44 @@
         { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] }
     ];
 
-    // 2. ANA FONKSİYONLAR
+    // 2. BAŞLATICI (Hata almamak için en üstte tanımlıyoruz)
+    function init() {
+        console.log("Sistem başlatılıyor..."); // Konsolda bunu görüyor musun bak
+        const menu = document.getElementById('side-left');
+        if(menu) {
+            menu.innerHTML = '<h3>DÜNYA LİGLERİ</h3>'; // Temizleyip baştan kur
+            worldData.forEach((country, index) => {
+                menu.innerHTML += `
+                    <div class="country-item" onclick="document.getElementById('l-${index}').classList.toggle('open')">
+                        <span>${country.flag} ${country.name}</span><span>▼</span>
+                    </div>
+                    <div class="sub-leagues" id="l-${index}">${country.leagues.map(l => `<div>${l}</div>`).join('')}</div>`;
+            });
+        }
+        fetchLiveMatches();
+        setInterval(fetchLiveMatches, 60000);
+    }
+
+    // 3. MAÇLARI ÇEKME
     async function fetchLiveMatches() {
         const list = document.getElementById('match-list');
         const url = `https://freescoreapi.com/api/live-scores/fixtures?key=${API_KEY}`;
-        
         try {
             const response = await fetch(url);
             const data = await response.json();
             const matches = data.data || [];
-
             if (matches.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Şu an canlı maç bulunmuyor.</p>';
+                list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Canlı maç bulunmuyor.</p>';
                 return;
             }
             renderMatches(matches);
         } catch (error) {
             console.error('API Hatası:', error);
-            list.innerHTML = '<p style="color:red; text-align:center;">Bağlantı Hatası!</p>';
+            list.innerHTML = '<p style="color:red; text-align:center;">API Bağlantı Hatası!</p>';
         }
     }
 
+    // 4. EKRANA BASMA
     function renderMatches(matches) {
         const list = document.getElementById('match-list');
         let html = '';
@@ -100,29 +117,16 @@
             html += `
                 <div class="match-row">
                     <div class="time"><span class="live-dot">●</span> ${m.minute || '0'}'</div>
-                    <div class="teams">
-                        <div>${m.home_name}</div>
-                        <div>${m.away_name}</div>
-                    </div>
+                    <div class="teams"><div>${m.home_name}</div><div>${m.away_name}</div></div>
                     <div class="score-box">${m.score || '0 - 0'}</div>
-                    <div class="odds-container">
-                        <div class="odd-box">1.40</div><div class="odd-box">3.50</div><div class="odd-box">5.00</div>
-                    </div>
+                    <div class="odds-container"><div class="odd-box">-</div><div class="odd-box">-</div><div class="odd-box">-</div></div>
                 </div>`;
         });
         list.innerHTML = html;
     }
 
-    // 3. YARDIMCI FONKSİYONLAR (Burayı sildiğimiz için hata veriyordu)
-    function toggleLeagues(i) { 
-        const el = document.getElementById(`l-${index}`);
-        if(el) el.classList.toggle('open'); 
-    }
-    
-    function toggleChat() { 
-        document.getElementById('chat-sidebar').classList.toggle('open-chat'); 
-    }
-    
+    // 5. CHAT VE DİĞERLERİ
+    function toggleChat() { document.getElementById('chat-sidebar').classList.toggle('open-chat'); }
     function sendMessage() {
         const input = document.getElementById('chat-input');
         const chatBox = document.getElementById('chat-box');
@@ -136,33 +140,13 @@
         }
     }
 
-    // 4. BAŞLATICI
-    function init() {
-        // Sol menü oluşturma
-        const menu = document.getElementById('side-left');
-        if(menu) {
-            worldData.forEach((country, index) => {
-                menu.innerHTML += `
-                    <div class="country-item" onclick="document.getElementById('l-${index}').classList.toggle('open')">
-                        <span>${country.flag} ${country.name}</span><span>▼</span>
-                    </div>
-                    <div class="sub-leagues" id="l-${index}">${country.leagues.map(l => `<div>${l}</div>`).join('')}</div>`;
-            });
-        }
-        // Maçları getir
-        fetchLiveMatches();
-        // 1 dakikada bir güncelle
-        setInterval(fetchLiveMatches, 60000);
-    }
-
-    // Olay Dinleyicileri
+    // GÜVENLİ BAŞLATMA YÖNTEMİ
+    document.addEventListener('DOMContentLoaded', init);
     document.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-    
-    // SAYFA YÜKLENDİĞİNDE BAŞLAT
-    window.onload = init;
 </script>
 </body>
 </html>
+
 
 
 
