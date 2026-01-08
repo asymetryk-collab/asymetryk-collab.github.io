@@ -81,10 +81,11 @@
         </div>
     </div>
 </div>
-
 <script>
-    // --- API AYARLARI ---
-    const API_KEY = 'MAİLİNE_GELEN_TOKENI_BURAYA_YAZ'; // Buraya kendi tokenını koy
+    // 1. API AYARLARI
+    const API_KEY = 'MAİLİNE_GELEN_TOKENI_BURAYA_YAZ'; 
+
+    // 2. SABİT VERİLER
     const worldData = [
         { name: "Türkiye", flag: "🇹🇷", leagues: ["Süper Lig", "1. Lig"] },
         { name: "İngiltere", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", leagues: ["Premier League"] },
@@ -94,6 +95,7 @@
         { name: "Fransa", flag: "🇫🇷", leagues: ["Ligue 1"] }
     ];
 
+    // 3. MAÇLARI ÇEKME FONKSİYONU
     async function fetchLiveMatches() {
         const list = document.getElementById('match-list');
         const options = { headers: { 'X-Auth-Token': API_KEY } };
@@ -113,6 +115,7 @@
         }
     }
 
+    // 4. EKRANA BASMA FONKSİYONU
     function renderMatches(matches) {
         const list = document.getElementById('match-list');
         let html = '';
@@ -129,23 +132,26 @@
                         <div>${m.awayTeam.name}</div>
                     </div>
                     <div class="score-box">${homeScore} - ${awayScore}</div>
-                    <div class="odds-container">
-                        <div class="odd-box">-</div>
-                        <div class="odd-box">-</div>
-                        <div class="odd-box">-</div>
-                    </div>
+                    <div class="odds-container"><div class="odd-box">-</div><div class="odd-box">-</div><div class="odd-box">-</div></div>
                 </div>`;
         });
         list.innerHTML = html;
     }
 
-    function toggleLeagues(i) { document.getElementById(`l-${i}`).classList.toggle('open'); }
-    function toggleChat() { document.getElementById('chat-sidebar').classList.toggle('open-chat'); }
+    // 5. DİĞER FONKSİYONLAR
+    function toggleLeagues(i) { 
+        const el = document.getElementById(`l-${i}`);
+        if(el) el.classList.toggle('open'); 
+    }
+    
+    function toggleChat() { 
+        document.getElementById('chat-sidebar').classList.toggle('open-chat'); 
+    }
     
     function sendMessage() {
         const input = document.getElementById('chat-input');
         const chatBox = document.getElementById('chat-box');
-        if (input.value.trim() !== "") {
+        if (input && input.value.trim() !== "") {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
             msgDiv.innerHTML = `<span class="msg-user">Mach:</span> ${input.value}`;
@@ -155,15 +161,18 @@
         }
     }
 
+    // 6. BAŞLATICI (INIT)
     function init() {
         const menu = document.getElementById('side-left');
-        worldData.forEach((country, index) => {
-            menu.innerHTML += `
-                <div class="country-item" onclick="toggleLeagues(${index})">
-                    <span>${country.flag} ${country.name}</span><span>▼</span>
-                </div>
-                <div class="sub-leagues" id="l-${index}">${country.leagues.map(l => `<div>${l}</div>`).join('')}</div>`;
-        });
+        if(menu) {
+            worldData.forEach((country, index) => {
+                menu.innerHTML += `
+                    <div class="country-item" onclick="toggleLeagues(${index})">
+                        <span>${country.flag} ${country.name}</span><span>▼</span>
+                    </div>
+                    <div class="sub-leagues" id="l-${index}">${country.leagues.map(l => `<div>${l}</div>`).join('')}</div>`;
+            });
+        }
         fetchLiveMatches();
         setInterval(fetchLiveMatches, 60000);
     }
@@ -173,6 +182,7 @@
 </script>
 </body>
 </html>
+
 
 
 
