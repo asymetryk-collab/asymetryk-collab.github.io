@@ -45,89 +45,25 @@
 
 <div class="main-feed">
     <h1>MACH SCORE LIVE</h1>
-    <div id="match-list">
-        <p style="color:#555;">Maçlar hazırlanıyor...</p>
-    </div>
-</div>
-
-<div class="chat-toggle" onclick="toggleChat()">🗨️</div>
-
-<div class="sidebar-right" id="chat-sidebar">
-    <div class="chat-container">
-        <div class="chat-header"><span>🗨️ CANLI SOHBET</span><span onclick="toggleChat()" style="cursor:pointer; font-size: 24px;">&times;</span></div>
-        <div class="chat-messages" id="chat-box"><div class="message"><span class="msg-user">Sistem:</span> Hoş geldin Mach!</div></div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" class="chat-input" placeholder="Yazın...">
-            <button class="chat-send" onclick="sendMessage()">GÖNDER</button>
-        </div>
+    <div id="scoreaxis-widget-canli" style="width:100%; min-height: 800px;">
+        <iframe 
+            src="https://www.scoreaxis.com/widget/live-fixtures?autoHeight=1&bodyBackground=%231a1a1a&textColor=%23f0f0f0&border=%23333&font=Segoe%20UI&inst=1" 
+            style="width: 100%; border: none; height: 1000px;" 
+            id="sa-iframe">
+        </iframe>
     </div>
 </div>
 
 <script>
-    // 1. AYARLAR - Senin Football-Data.org anahtarın
-    const API_KEY = '59e9aaec6ebc423c8a31848f004a3b8e'; 
-
+    // Sadece Chat ve Yan Menü Fonksiyonları Kalsın
     const worldData = [
         { name: "Türkiye", flag: "🇹🇷", leagues: ["Süper Lig"] },
         { name: "İngiltere", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", leagues: ["Premier League"] },
-        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] },
-        { name: "Almanya", flag: "🇩🇪", leagues: ["Bundesliga"] },
-        { name: "İtalya", flag: "🇮🇹", leagues: ["Serie A"] }
+        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] }
     ];
 
-    // 2. MAÇLARI ÇEKME (Proxy ile CORS Engelini Aşıyoruz)
-    async function fetchLiveMatches() {
-        const list = document.getElementById('match-list');
-        // GitHub'da çalışması için bu aracı servisi kullanmak zorundayız
-        const proxy = "https://corsproxy.io/?";
-        const target = "https://api.football-data.org/v4/matches";
-        
-        try {
-            const response = await fetch(proxy + encodeURIComponent(target), {
-                method: 'GET',
-                headers: { 'X-Auth-Token': API_KEY }
-            });
-
-            if (!response.ok) throw new Error('API Yanıt Vermedi');
-
-            const data = await response.json();
-            const matches = data.matches || [];
-
-            if (matches.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Şu an canlı maç bulunmuyor.</p>';
-                return;
-            }
-            renderMatches(matches);
-        } catch (error) {
-            console.error('Hata:', error);
-            list.innerHTML = '<p style="color:red; text-align:center;">Bağlantı Hatası! Lütfen 1 dakika sonra tekrar dene.</p>';
-        }
-    }
-
-    // 3. EKRANA BASMA
-    function renderMatches(matches) {
-        const list = document.getElementById('match-list');
-        let html = '';
-        matches.forEach(m => {
-            const home = m.homeTeam.name;
-            const away = m.awayTeam.name;
-            const homeScore = m.score.fullTime.home !== null ? m.score.fullTime.home : 0;
-            const awayScore = m.score.fullTime.away !== null ? m.score.fullTime.away : 0;
-            const status = m.status === 'IN_PLAY' ? 'CANLI' : 'MS';
-
-            html += `
-                <div class="match-row">
-                    <div class="time"><span class="live-dot">●</span> ${status}</div>
-                    <div class="teams"><div>${home}</div><div>${away}</div></div>
-                    <div class="score-box">${homeScore} - ${awayScore}</div>
-                    <div class="odds-container"><div class="odd-box">-</div><div class="odd-box">-</div><div class="odd-box">-</div></div>
-                </div>`;
-        });
-        list.innerHTML = html;
-    }
-
-    // 4. CHAT VE SOL MENÜ
     function toggleChat() { document.getElementById('chat-sidebar').classList.toggle('open-chat'); }
+
     function sendMessage() {
         const input = document.getElementById('chat-input');
         const chatBox = document.getElementById('chat-box');
@@ -141,7 +77,6 @@
         }
     }
 
-    // 5. BAŞLATICI
     function init() {
         const menu = document.getElementById('side-left');
         if(menu) {
@@ -154,8 +89,6 @@
                     <div class="sub-leagues" id="l-${index}">${country.leagues.map(l => `<div>${l}</div>`).join('')}</div>`;
             });
         }
-        fetchLiveMatches();
-        setInterval(fetchLiveMatches, 60000);
     }
 
     document.addEventListener('DOMContentLoaded', init);
@@ -163,6 +96,7 @@
 </script>
 </body>
 </html>
+
 
 
 
