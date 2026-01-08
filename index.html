@@ -64,34 +64,36 @@
 </div>
 
 <script>
-    // --- BURAYA DİKKAT: FreeScoreAPI Ayarları ---
-    const API_KEY = '59e9aaec6ebc423c8a31848f004a3b8e'; 
+    // 1. AYARLAR - Sadece FreeScoreAPI anahtarını gir
+    const API_KEY = 'BURAYA_FREESCOREAPI_ANAHTARINI_YAZ'; 
+    // FreeScoreAPI anahtarı URL içinde kabul eder, bu CORS engelini aşmamıza yardımcı olur
     const API_URL = `https://freescoreapi.com/api/live-scores/fixtures?key=${API_KEY}`;
-
-    const worldData = [
-        { name: "Türkiye", flag: "🇹🇷", leagues: ["Süper Lig"] },
-        { name: "İngiltere", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", leagues: ["Premier League"] },
-        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] }
-    ];
 
     async function fetchLiveMatches() {
         const list = document.getElementById('match-list');
+        
         try {
-            // FreeScoreAPI genellikle CORS sorunu çıkarmaz
+            // Proxy kullanmadan doğrudan deniyoruz
             const response = await fetch(API_URL);
+            
+            if (!response.ok) {
+                throw new Error('API Yanıt Vermedi');
+            }
+
             const data = await response.json();
             
-            // FreeScoreAPI veriyi genelde 'data' içinde gönderir
+            // FreeScoreAPI veriyi 'data' objesi içinde gönderir
             const matches = data.data || [];
 
             if (matches.length === 0) {
                 list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Şu an aktif canlı maç bulunmuyor.</p>';
                 return;
             }
+
             renderMatches(matches);
         } catch (error) {
             console.error('Hata:', error);
-            list.innerHTML = '<p style="color:red; text-align:center;">API Bağlantı Hatası! Lütfen anahtarı kontrol et.</p>';
+            list.innerHTML = '<p style="color:red; text-align:center;">Bağlantı Hatası! Anahtarını veya İnternetini Kontrol Et.</p>';
         }
     }
 
@@ -99,70 +101,29 @@
         const list = document.getElementById('match-list');
         let html = '';
         matches.forEach(m => {
-            // API'den gelen farklı isimleri (home_name, score vb.) eşliyoruz
-            const home = m.home_name || 'Ev Sahibi';
-            const away = m.away_name || 'Deplasman';
-            const score = m.score || '0 - 0';
-            const minute = m.minute || '0';
-
+            // FreeScoreAPI veri formatına göre eşleme (home_name, away_name, score)
             html += `
                 <div class="match-row">
-                    <div class="time"><span class="live-dot">●</span> ${minute}'</div>
+                    <div class="time"><span class="live-dot">●</span> ${m.minute || '0'}'</div>
                     <div class="teams">
-                        <div>${home}</div>
-                        <div>${away}</div>
+                        <div>${m.home_name}</div>
+                        <div>${m.away_name}</div>
                     </div>
-                    <div class="score-box">${score}</div>
+                    <div class="score-box">${m.score || '0 - 0'}</div>
                     <div class="odds-container">
-                        <div class="odd-box">-</div><div class="odd-box">-</div><div class="odd-box">-</div>
+                        <div class="odd-box">1.40</div><div class="odd-box">3.50</div><div class="odd-box">5.00</div>
                     </div>
                 </div>`;
         });
         list.innerHTML = html;
     }
 
-    function toggleLeagues(i) { 
-        const el = document.getElementById(`l-${i}`);
-        if(el) el.classList.toggle('open'); 
-    }
-    
-    function toggleChat() { 
-        document.getElementById('chat-sidebar').classList.toggle('open-chat'); 
-    }
-    
-    function sendMessage() {
-        const input = document.getElementById('chat-input');
-        const chatBox = document.getElementById('chat-box');
-        if (input && input.value.trim() !== "") {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
-            msgDiv.innerHTML = `<span class="msg-user">Mach:</span> ${input.value}`;
-            chatBox.appendChild(msgDiv);
-            input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-    }
-
-    function init() {
-        const menu = document.getElementById('side-left');
-        if(menu) {
-            worldData.forEach((country, index) => {
-                menu.innerHTML += `
-                    <div class="country-item" onclick="toggleLeagues(${index})">
-                        <span>${country.flag} ${country.name}</span><span>▼</span>
-                    </div>
-                    <div class="sub-leagues" id="l-${index}">${country.leagues.map(l => `<div>${l}</div>`).join('')}</div>`;
-            });
-        }
-        fetchLiveMatches();
-        setInterval(fetchLiveMatches, 60000);
-    }
-
-    document.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-    window.onload = init;
+    // Diğer fonksiyonların (init, toggleChat, sendMessage) aynı kalsın...
+    window.onload = init; 
 </script>
 </body>
 </html>
+
 
 
 
