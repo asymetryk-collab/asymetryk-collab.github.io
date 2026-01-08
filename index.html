@@ -48,22 +48,25 @@
     <div id="scoreaxis-widget-canli" style="width:100%; min-height: 800px;">
         <iframe 
             src="https://www.scoreaxis.com/widget/live-fixtures?autoHeight=1&bodyBackground=%231a1a1a&textColor=%23f0f0f0&border=%23333&font=Segoe%20UI&inst=1" 
-            style="width: 100%; border: none; height: 1000px;" 
+            style="width: 100%; border: none; min-height: 1000px;" 
             id="sa-iframe">
         </iframe>
     </div>
 </div>
 
 <script>
-    // Sadece Chat ve Yan Menü Fonksiyonları Kalsın
+    // 1. LİG VERİLERİ (Sol Menü İçin)
     const worldData = [
         { name: "Türkiye", flag: "🇹🇷", leagues: ["Süper Lig"] },
         { name: "İngiltere", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", leagues: ["Premier League"] },
-        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] }
+        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] },
+        { name: "Almanya", flag: "🇩🇪", leagues: ["Bundesliga"] },
+        { name: "İtalya", flag: "🇮🇹", leagues: ["Serie A"] }
     ];
 
+    // 2. CHAT FONKSİYONLARI
     function toggleChat() { document.getElementById('chat-sidebar').classList.toggle('open-chat'); }
-
+    
     function sendMessage() {
         const input = document.getElementById('chat-input');
         const chatBox = document.getElementById('chat-box');
@@ -77,6 +80,7 @@
         }
     }
 
+    // 3. BAŞLATICI
     function init() {
         const menu = document.getElementById('side-left');
         if(menu) {
@@ -96,6 +100,7 @@
 </script>
 </body>
 </html>
+
 
 
 
