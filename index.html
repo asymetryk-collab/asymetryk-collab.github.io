@@ -97,8 +97,20 @@
         const options = { headers: { 'X-Auth-Token': cleanKey } };
 
         try {
-            const response = await fetch('https://api.football-data.org/v4/matches', options);
+            // BAŞINA PROXY EKLEDİK: Bu sayede CORS engelini aşacağız
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            const targetUrl = 'https://api.football-data.org/v4/matches';
+            
+            const response = await fetch(proxyUrl + targetUrl, options);
+            
+            // Eğer proxy hata verirse erişim izni gerekebilir
+            if (response.status === 403) {
+                list.innerHTML = '<p style="text-align:center; color:orange;">Lütfen şu adrese gidip "Request temporary access" butonuna bas: <br><a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" style="color:var(--accent);">Proxy İzni Al</a></p>';
+                return;
+            }
+
             const data = await response.json();
+            // ... (geri kalan render işlemleri aynı)
             
             if (!data.matches || data.matches.length === 0) {
                 list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Şu an aktif maç bulunmuyor.</p>';
@@ -183,6 +195,7 @@
 </script>
 </body>
 </html>
+
 
 
 
