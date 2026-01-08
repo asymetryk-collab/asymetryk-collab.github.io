@@ -64,88 +64,80 @@
 </div>
 
 <script>
-    // 1. AYARLAR
+    // 1. AYARLAR - Senin football-data.org anahtarın
     const API_KEY = '59e9aaec6ebc423c8a31848f004a3b8e'; 
-    const worldData = [
-        { name: "Türkiye", flag: "🇹🇷", leagues: ["Süper Lig"] },
-        { name: "İngiltere", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", leagues: ["Premier League"] },
-        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] }
-    ];
 
-    // 2. BAŞLATICI (Hata almamak için en üstte tanımlıyoruz)
-    function init() {
-        console.log("Sistem başlatılıyor..."); // Konsolda bunu görüyor musun bak
-        const menu = document.getElementById('side-left');
-        if(menu) {
-            menu.innerHTML = '<h3>DÜNYA LİGLERİ</h3>'; // Temizleyip baştan kur
-            worldData.forEach((country, index) => {
-                menu.innerHTML += `
-                    <div class="country-item" onclick="document.getElementById('l-${index}').classList.toggle('open')">
-                        <span>${country.flag} ${country.name}</span><span>▼</span>
-                    </div>
-                    <div class="sub-leagues" id="l-${index}">${country.leagues.map(l => `<div>${l}</div>`).join('')}</div>`;
-            });
-        }
-        fetchLiveMatches();
-        setInterval(fetchLiveMatches, 60000);
-    }
-
-    // 3. MAÇLARI ÇEKME
     async function fetchLiveMatches() {
         const list = document.getElementById('match-list');
-        const url = `https://freescoreapi.com/api/live-scores/fixtures?key=${API_KEY}`;
+        
+        // Bu API tarayıcıdan doğrudan isteği engellediği için 
+        // bazen bir 'proxy' şart oluyor. İşte en stabil proxy:
+        const proxy = "https://corsproxy.io/?"; 
+        const target = "https://api.football-data.org/v4/matches";
+        
         try {
-            const response = await fetch(url);
+            const response = await fetch(proxy + encodeURIComponent(target), {
+                method: 'GET',
+                headers: {
+                    'X-Auth-Token': API_KEY,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error('API Hatası: ' + response.status);
+
             const data = await response.json();
-            const matches = data.data || [];
+            const matches = data.matches || [];
+
             if (matches.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Canlı maç bulunmuyor.</p>';
+                list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Şu an aktif canlı maç bulunmuyor.</p>';
                 return;
             }
             renderMatches(matches);
         } catch (error) {
-            console.error('API Hatası:', error);
-            list.innerHTML = '<p style="color:red; text-align:center;">API Bağlantı Hatası!</p>';
+            console.error('Hata:', error);
+            list.innerHTML = `<p style="color:red; text-align:center;">Bağlantı Hatası!<br><small>${error.message}</small></p>`;
         }
     }
 
-    // 4. EKRANA BASMA
     function renderMatches(matches) {
         const list = document.getElementById('match-list');
         let html = '';
         matches.forEach(m => {
+            // football-data.org veri yapısına göre eşliyoruz
+            const home = m.homeTeam.shortName || m.homeTeam.name;
+            const away = m.awayTeam.shortName || m.awayTeam.name;
+            const homeScore = m.score.fullTime.home !== null ? m.score.fullTime.home : 0;
+            const awayScore = m.score.fullTime.away !== null ? m.score.fullTime.away : 0;
+            const status = m.status === 'IN_PLAY' ? 'CANLI' : 'BEKLİYOR';
+
             html += `
                 <div class="match-row">
-                    <div class="time"><span class="live-dot">●</span> ${m.minute || '0'}'</div>
-                    <div class="teams"><div>${m.home_name}</div><div>${m.away_name}</div></div>
-                    <div class="score-box">${m.score || '0 - 0'}</div>
-                    <div class="odds-container"><div class="odd-box">-</div><div class="odd-box">-</div><div class="odd-box">-</div></div>
+                    <div class="time"><span class="live-dot">●</span> ${status}</div>
+                    <div class="teams">
+                        <div>${home}</div>
+                        <div>${away}</div>
+                    </div>
+                    <div class="score-box">${homeScore} - ${awayScore}</div>
+                    <div class="odds-container">
+                        <div class="odd-box">-</div><div class="odd-box">-</div><div class="odd-box">-</div>
+                    </div>
                 </div>`;
         });
         list.innerHTML = html;
     }
 
-    // 5. CHAT VE DİĞERLERİ
-    function toggleChat() { document.getElementById('chat-sidebar').classList.toggle('open-chat'); }
-    function sendMessage() {
-        const input = document.getElementById('chat-input');
-        const chatBox = document.getElementById('chat-box');
-        if (input && input.value.trim() !== "") {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
-            msgDiv.innerHTML = `<span class="msg-user">Mach:</span> ${input.value}`;
-            chatBox.appendChild(msgDiv);
-            input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+    // Başlatıcı fonksiyonlar (init vb.) aynı kalsın...
+    function init() {
+        // Sol menü ve diğer hazırlıklar...
+        fetchLiveMatches();
+        setInterval(fetchLiveMatches, 60000);
     }
-
-    // GÜVENLİ BAŞLATMA YÖNTEMİ
-    document.addEventListener('DOMContentLoaded', init);
-    document.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+    window.onload = init;
 </script>
 </body>
 </html>
+
 
 
 
