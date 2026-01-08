@@ -84,71 +84,65 @@
 
 <script>
     // --- API AYARLARI ---
-    const API_KEY = 'f9177533b2msh1ba46f70043648ap118e8djsn5548b23270d0'; // <--- RapidAPI'den aldığın anahtarı buraya yapıştır!
-    const API_HOST = 'api-football-v1.p.rapidapi.com';
+ const API_KEY = '59e9aaec6ebc423c8a31848f004a3b8e';
 
-    // Sabit Sol Menü Verileri
-    const worldData = [
-        { name: "Türkiye", flag: "🇹🇷", leagues: ["Süper Lig", "1. Lig"] },
-        { name: "İngiltere", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", leagues: ["Premier League"] },
-        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] },
-        { name: "Almanya", flag: "🇩🇪", leagues: ["Bundesliga"] },
-        { name: "İtalya", flag: "🇮🇹", leagues: ["Serie A"] },
-        { name: "Fransa", flag: "🇫🇷", leagues: ["Ligue 1"] }
-    ];
+async function fetchLiveMatches() {
+    const list = document.getElementById('match-list');
+    
+    const options = {
+        headers: { 'X-Auth-Token': API_KEY }
+    };
 
-    // --- FONKSİYONLAR ---
+    try {
+        // Bu API'de canlı maçlar 'matches' altında gelir
+        const response = await fetch('https://api.football-data.org/v4/matches', options);
+        const data = await response.json();
+        
+        console.log("Gelen Veriler:", data);
 
-    async function fetchLiveMatches() {
-        const options = {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': API_KEY,
-                'X-RapidAPI-Host': API_HOST
-            }
-        };
-
-        try {
-            const response = await fetch('https://api-football-v1.p.rapidapi.com/v3/fixtures?date=2026-01-08', options);
-            const data = await response.json();
-            renderMatches(data.response);
-        } catch (error) {
-            console.error('Hata:', error);
-            document.getElementById('match-list').innerHTML = '<p style="color:red;">API Bağlantı Hatası! Anahtarını kontrol et.</p>';
-        }
-    }
-
-    function renderMatches(matches) {
-        const list = document.getElementById('match-list');
-        if (!matches || matches.length === 0) {
-            list.innerHTML = '<p style="color:#555; text-align:center;">Şu an canlı maç bulunmuyor.</p>';
+        if (!data.matches || data.matches.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#555;">Şu an aktif maç bulunmuyor.</p>';
             return;
         }
 
-        let html = '';
-        matches.forEach(m => {
-            html += `
-                <div class="match-row">
-                    <div class="time">${m.fixture.status.elapsed}<span class="live-dot">'</span></div>
-                    <div class="teams">
-                        <div><img src="${m.teams.home.logo}" width="16"> ${m.teams.home.name}</div>
-                        <div><img src="${m.teams.away.logo}" width="16"> ${m.teams.away.name}</div>
-                    </div>
-                    <div class="score-box">
-                        ${m.goals.home} - ${m.goals.away}
-                        <div class="hover-stats">
-                            <div style="font-size:11px; margin-bottom:5px;">${m.league.name}</div>
-                            <div style="font-size:10px; color:var(--accent);">${m.league.country}</div>
-                        </div>
-                    </div>
-                    <div class="odds-container">
-                        <div class="odd-box">-</div>
-                        <div class="odd-box">-</div>
-                        <div class="odd-box">-</div>
-                    </div>
-                </div>`;
-        });
-        list.innerHTML = html;
+        renderMatches(data.matches);
+    } catch (error) {
+        console.error('Hata:', error);
+        list.innerHTML = '<p style="color:red; text-align:center;">API Bağlantı Hatası!</p>';
+    }
+}
+
+function renderMatches(matches) {
+    const list = document.getElementById('match-list');
+    let html = '';
+
+    matches.forEach(m => {
+        // Skorlar henüz başlamamış maçlar için null gelebilir, 0 yapalım
+        const homeScore = m.score.fullTime.home !== null ? m.score.fullTime.home : 0;
+        const awayScore = m.score.fullTime.away !== null ? m.score.fullTime.away : 0;
+        
+        // Maçın durumunu (Canlı, Bitti, Başlamadı) gösterelim
+        const statusText = m.status === 'IN_PLAY' ? 'CANLI' : (m.status === 'FINISHED' ? 'MS' : 'BEKLİYOR');
+
+        html += `
+            <div class="match-row">
+                <div class="time" style="font-size: 9px;">${statusText}</div>
+                <div class="teams">
+                    <div>${m.homeTeam.name}</div>
+                    <div>${m.awayTeam.name}</div>
+                </div>
+                <div class="score-box">
+                    ${homeScore} - ${awayScore}
+                </div>
+                <div class="odds-container">
+                    <div class="odd-box">-</div>
+                    <div class="odd-box">-</div>
+                    <div class="odd-box">-</div>
+                </div>
+            </div>`;
+    });
+    list.innerHTML = html;
+}
     }
 
     function init() {
@@ -188,5 +182,6 @@
 </script>
 </body>
 </html>
+
 
 
