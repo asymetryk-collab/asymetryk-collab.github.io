@@ -3,108 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MACH SCORE | PRO</title>
+    <title>MACH SCORE | LIVE</title>
     <style>
         :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #ffde00; --text: #f0f0f0; --border: #333; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar-left { width: 210px; background: #111; border-right: 1px solid var(--border); padding: 10px; overflow-y: auto; flex-shrink: 0; }
-        .sidebar-left h3 { font-size: 10px; color: #555; text-transform: uppercase; padding: 10px; }
-        .country-item { cursor: pointer; padding: 10px; border-radius: 4px; font-size: 13px; display: flex; justify-content: space-between; transition: 0.2s; }
-        .country-item:hover { background: #222; color: var(--accent); }
-        .sub-leagues { padding-left: 20px; display: none; background: #141414; }
-        .sub-leagues div { padding: 8px 10px; font-size: 11px; color: #888; }
-        .open { display: block !important; }
-        .main-feed { flex-grow: 1; overflow-y: auto; padding: 15px 15px 15px 38px; max-width: 800px; }
-        .sidebar-right { position: fixed; right: -360px; top: 0; width: 350px; height: 100vh; background: #0a0a0a; box-shadow: -10px 0 40px rgba(0,0,0,0.8); transition: 0.3s ease-in-out; z-index: 9999; }
+        .sidebar-left { width: 220px; background: #111; border-right: 1px solid var(--border); padding: 10px; overflow-y: auto; flex-shrink: 0; }
+        .main-feed { flex-grow: 1; overflow-y: auto; padding: 20px; max-width: 900px; background: var(--bg); }
+        .sidebar-right { position: fixed; right: -360px; top: 0; width: 350px; height: 100vh; background: #0a0a0a; transition: 0.3s; z-index: 9999; border-left: 1px solid #333; }
         .sidebar-right.open-chat { right: 0; }
-        .chat-container { display: flex; flex-direction: column; height: 100%; }
-        .chat-header { padding: 20px; border-bottom: 1px solid #333; font-weight: bold; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
-        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-input-area { padding: 15px; border-top: 1px solid #333; display: flex; gap: 8px; background: #111; }
-        .chat-input { flex-grow: 1; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; outline: none; }
-        .chat-send { background: var(--accent); color: #000; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .message { background: #222; padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid var(--accent); max-width: 85%; }
-        .msg-user { color: var(--accent); font-weight: bold; font-size: 11px; margin-bottom: 2px; display: block; }
-        .chat-toggle { position: fixed; right: 25px; bottom: 25px; width: 60px; height: 60px; background: var(--accent); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 2001; }
-        h1 { font-size: 22px; color: var(--accent); border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; }
+        h1 { font-size: 24px; color: var(--accent); margin-bottom: 20px; border-bottom: 2px solid var(--accent); display: inline-block; }
+        .chat-toggle { position: fixed; right: 25px; bottom: 25px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 2001; color: #000; }
+        
+        /* Widget Alanı */
+        .widget-wrapper { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #333; background: #1a1a1a; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        iframe { width: 100%; height: 900px; border: none; }
     </style>
 </head>
 <body>
 
-<div class="sidebar-left" id="side-left">
-    <h3>DÜNYA LİGLERİ</h3>
+<div class="sidebar-left">
+    <h3 style="color: #555; font-size: 12px;">DÜNYA LİGLERİ</h3>
+    <div style="color: #888; font-size: 13px; padding: 10px;">🇹🇷 Süper Lig<br><br>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League<br><br>🇪🇸 La Liga</div>
 </div>
 
 <div class="main-feed">
     <h1>MACH SCORE LIVE</h1>
-    <div style="width:100%; min-height: 600px; background: #111; border-radius: 12px; overflow: hidden; border: 1px solid #333;">
-        <iframe 
-            src="https://www.macsonuclari.com.tr/widget/live?theme=dark&bg=%231a1a1a&color=%23f0f0f0&accent=%23ffde00" 
-            width="100%" 
-            height="800" 
-            frameborder="0" 
-            scrolling="yes"
-            style="border:none;">
-        </iframe>
+    <div class="widget-wrapper">
+        <iframe src="https://m.sporx.com/canli-skor-widget"></iframe>
     </div>
 </div>
-<div class="chat-toggle" onclick="toggleChat()">🗨️</div>
 
-<div class="sidebar-right" id="chat-sidebar">
-    <div class="chat-container">
-        <div class="chat-header"><span>🗨️ CANLI SOHBET</span><span onclick="toggleChat()" style="cursor:pointer; font-size: 24px;">&times;</span></div>
-        <div class="chat-messages" id="chat-box"><div class="message"><span class="msg-user">Sistem:</span> Hoş geldin Mach!</div></div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" class="chat-input" placeholder="Yazın...">
-            <button class="chat-send" onclick="sendMessage()">GÖNDER</button>
-        </div>
+<div class="chat-toggle" onclick="document.getElementById('chat-sidebar').classList.toggle('open-chat')">🗨️</div>
+
+<div id="chat-sidebar" class="sidebar-right">
+    <div style="padding: 20px; color: var(--accent); border-bottom: 1px solid #333;">SOHBET</div>
+    <div id="chat-box" style="padding: 15px; height: 80%; overflow-y: auto; font-size: 14px;"></div>
+    <div style="padding: 10px; position: absolute; bottom: 0; width: 100%; display: flex; gap: 5px;">
+        <input type="text" id="chat-in" style="flex:1; background:#222; border:1px solid #444; color:#fff; padding:10px;">
+        <button onclick="sendMsg()" style="background:var(--accent); border:none; padding:10px;">GÖNDER</button>
     </div>
 </div>
 
 <script>
-    const worldData = [
-        { name: "Türkiye", flag: "🇹🇷", leagues: ["Süper Lig"] },
-        { name: "İngiltere", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", leagues: ["Premier League"] },
-        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] },
-        { name: "Almanya", flag: "🇩🇪", leagues: ["Bundesliga"] },
-        { name: "İtalya", flag: "🇮🇹", leagues: ["Serie A"] }
-    ];
-
-    function toggleChat() { document.getElementById('chat-sidebar').classList.toggle('open-chat'); }
-
-    function sendMessage() {
-        const input = document.getElementById('chat-input');
-        const chatBox = document.getElementById('chat-box');
-        if (input && input.value.trim() !== "") {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
-            msgDiv.innerHTML = `<span class="msg-user">Mach:</span> ${input.value}`;
-            chatBox.appendChild(msgDiv);
-            input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
+    function sendMsg() {
+        const box = document.getElementById('chat-box');
+        const input = document.getElementById('chat-in');
+        if(input.value) {
+            box.innerHTML += `<div style="margin-bottom:10px;"><b style="color:var(--accent)">Mach:</b> ${input.value}</div>`;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
         }
     }
-
-    function init() {
-        const menu = document.getElementById('side-left');
-        if(menu) {
-            menu.innerHTML = '<h3>DÜNYA LİGLERİ</h3>';
-            worldData.forEach((country, index) => {
-                menu.innerHTML += `
-                    <div class="country-item" onclick="document.getElementById('l-${index}').classList.toggle('open')">
-                        <span>${country.flag} ${country.name}</span><span>▼</span>
-                    </div>
-                    <div class="sub-leagues" id="l-${index}">${country.leagues.map(l => `<div>${l}</div>`).join('')}</div>`;
-            });
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', init);
-    document.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 </script>
 </body>
 </html>
-
 
 
 
