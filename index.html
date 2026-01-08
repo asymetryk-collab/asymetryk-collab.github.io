@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MACH SCORE | PRO LIVE</title>
+    <title>MACH SCORE | LIVE</title>
     <style>
         :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #ffde00; --text: #f0f0f0; --border: #333; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-
-        /* SOL MENÜ - LİGLER */
         .sidebar-left { width: 210px; background: #111; border-right: 1px solid var(--border); padding: 10px; overflow-y: auto; flex-shrink: 0; }
         .sidebar-left h3 { font-size: 10px; color: #555; text-transform: uppercase; padding: 10px; }
         .country-item { cursor: pointer; padding: 10px; border-radius: 4px; font-size: 13px; display: flex; justify-content: space-between; transition: 0.2s; }
@@ -16,11 +14,7 @@
         .sub-leagues { padding-left: 20px; display: none; background: #141414; }
         .sub-leagues div { padding: 8px 10px; font-size: 11px; color: #888; }
         .open { display: block !important; }
-
-        /* ANA AKIŞ - SOLA YAKLAŞTIRILMIŞ */
-        .main-feed { flex-grow: 1; overflow-y: auto; padding: 15px 15px 15px 38px; margin: 0; max-width: 700px; }
-
-        /* SAĞ PANEL - CHAT */
+        .main-feed { flex-grow: 1; overflow-y: auto; padding: 15px 15px 15px 38px; max-width: 700px; }
         .sidebar-right { position: fixed; right: -360px; top: 0; width: 350px; height: 100vh; background: #0a0a0a; box-shadow: -10px 0 40px rgba(0,0,0,0.8); transition: 0.3s ease-in-out; z-index: 9999; }
         .sidebar-right.open-chat { right: 0; }
         .chat-container { display: flex; flex-direction: column; height: 100%; }
@@ -31,18 +25,14 @@
         .chat-send { background: var(--accent); color: #000; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .message { background: #222; padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid var(--accent); max-width: 85%; }
         .msg-user { color: var(--accent); font-weight: bold; font-size: 11px; margin-bottom: 2px; display: block; }
-
-        /* MAÇ SATIRLARI */
         .match-row { background: var(--card); border-bottom: 1px solid #222; display: flex; align-items: center; padding: 12px; gap: 15px; }
-        .time { width: 45px; font-size: 10px; color: var(--accent); font-weight: bold; text-transform: uppercase; }
+        .time { width: 45px; font-size: 10px; color: var(--accent); font-weight: bold; }
         .live-dot { color: #ff4d4d; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
         .teams { flex-grow: 1; font-size: 14px; }
         .score-box { background: #252525; padding: 6px 14px; border-radius: 4px; color: var(--accent); font-weight: bold; font-size: 17px; min-width: 50px; text-align: center; }
         .odds-container { display: flex; gap: 5px; }
         .odd-box { background: #2a2a2a; padding: 6px 10px; border-radius: 4px; font-size: 11px; color: #ccc; min-width: 40px; text-align: center; }
-
-        /* YÜZEN BUTON */
         .chat-toggle { position: fixed; right: 25px; bottom: 25px; width: 60px; height: 60px; background: var(--accent); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 2001; }
         h1 { font-size: 22px; color: var(--accent); border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; }
     </style>
@@ -64,13 +54,8 @@
 
 <div class="sidebar-right" id="chat-sidebar">
     <div class="chat-container">
-        <div class="chat-header">
-            <span>🗨️ CANLI SOHBET</span>
-            <span onclick="toggleChat()" style="cursor:pointer; font-size: 24px;">&times;</span>
-        </div>
-        <div class="chat-messages" id="chat-box">
-            <div class="message"><span class="msg-user">Sistem:</span> Hoş geldin Mach! Skorlar otomatik güncellenir.</div>
-        </div>
+        <div class="chat-header"><span>🗨️ CANLI SOHBET</span><span onclick="toggleChat()" style="cursor:pointer; font-size: 24px;">&times;</span></div>
+        <div class="chat-messages" id="chat-box"><div class="message"><span class="msg-user">Sistem:</span> Hoş geldin Mach!</div></div>
         <div class="chat-input-area">
             <input type="text" id="chat-input" class="chat-input" placeholder="Yazın...">
             <button class="chat-send" onclick="sendMessage()">GÖNDER</button>
@@ -79,79 +64,63 @@
 </div>
 
 <script>
-    // --- 1. AYARLAR ---
+    // --- BURAYA DİKKAT: FreeScoreAPI Ayarları ---
     const API_KEY = '59e9aaec6ebc423c8a31848f004a3b8e'; 
+    const API_URL = `https://freescoreapi.com/api/live-scores/fixtures?key=${API_KEY}`;
+
     const worldData = [
         { name: "Türkiye", flag: "🇹🇷", leagues: ["Süper Lig"] },
         { name: "İngiltere", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", leagues: ["Premier League"] },
-        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] },
-        { name: "Almanya", flag: "🇩🇪", leagues: ["Bundesliga"] },
-        { name: "İtalya", flag: "🇮🇹", leagues: ["Serie A"] },
-        { name: "Fransa", flag: "🇫🇷", leagues: ["Ligue 1"] }
+        { name: "İspanya", flag: "🇪🇸", leagues: ["La Liga"] }
     ];
 
-    // --- 2. MAÇ ÇEKME MOTORU ---
     async function fetchLiveMatches() {
         const list = document.getElementById('match-list');
-        const cleanKey = API_KEY.trim(); 
-        const options = { headers: { 'X-Auth-Token': cleanKey } };
-
         try {
-            // BAŞINA PROXY EKLEDİK: Bu sayede CORS engelini aşacağız
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            const targetUrl = 'https://api.football-data.org/v4/matches';
-            
-            const response = await fetch(proxyUrl + targetUrl, options);
-            
-            // Eğer proxy hata verirse erişim izni gerekebilir
-            if (response.status === 403) {
-                list.innerHTML = '<p style="text-align:center; color:orange;">Lütfen şu adrese gidip "Request temporary access" butonuna bas: <br><a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" style="color:var(--accent);">Proxy İzni Al</a></p>';
-                return;
-            }
-
+            // FreeScoreAPI genellikle CORS sorunu çıkarmaz
+            const response = await fetch(API_URL);
             const data = await response.json();
-            // ... (geri kalan render işlemleri aynı)
             
-            if (!data.matches || data.matches.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Şu an aktif maç bulunmuyor.</p>';
+            // FreeScoreAPI veriyi genelde 'data' içinde gönderir
+            const matches = data.data || [];
+
+            if (matches.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#555; margin-top:50px;">Şu an aktif canlı maç bulunmuyor.</p>';
                 return;
             }
-            renderMatches(data.matches);
+            renderMatches(matches);
         } catch (error) {
             console.error('Hata:', error);
             list.innerHTML = '<p style="color:red; text-align:center;">API Bağlantı Hatası! Lütfen anahtarı kontrol et.</p>';
         }
     }
 
-    // --- 3. EKRANA BASMA ---
     function renderMatches(matches) {
         const list = document.getElementById('match-list');
         let html = '';
         matches.forEach(m => {
-            const homeScore = m.score.fullTime.home !== null ? m.score.fullTime.home : 0;
-            const awayScore = m.score.fullTime.away !== null ? m.score.fullTime.away : 0;
-            const statusText = m.status === 'IN_PLAY' ? 'CANLI' : (m.status === 'FINISHED' ? 'MS' : 'YAKINDA');
-            const isLive = m.status === 'IN_PLAY' ? '<span class="live-dot">●</span>' : '';
+            // API'den gelen farklı isimleri (home_name, score vb.) eşliyoruz
+            const home = m.home_name || 'Ev Sahibi';
+            const away = m.away_name || 'Deplasman';
+            const score = m.score || '0 - 0';
+            const minute = m.minute || '0';
 
             html += `
                 <div class="match-row">
-                    <div class="time">${isLive} ${statusText}</div>
+                    <div class="time"><span class="live-dot">●</span> ${minute}'</div>
                     <div class="teams">
-                        <div>${m.homeTeam.name}</div>
-                        <div>${m.awayTeam.name}</div>
+                        <div>${home}</div>
+                        <div>${away}</div>
                     </div>
-                    <div class="score-box">${homeScore} - ${awayScore}</div>
+                    <div class="score-box">${score}</div>
                     <div class="odds-container">
-                        <div class="odd-box">-</div>
-                        <div class="odd-box">-</div>
-                        <div class="odd-box">-</div>
+                        <div class="odd-box">-</div><div class="odd-box">-</div><div class="odd-box">-</div>
                     </div>
                 </div>`;
         });
         list.innerHTML = html;
     }
 
-    // --- 4. ARA YÜZ FONKSİYONLARI ---
     function toggleLeagues(i) { 
         const el = document.getElementById(`l-${i}`);
         if(el) el.classList.toggle('open'); 
@@ -174,7 +143,6 @@
         }
     }
 
-    // --- 5. BAŞLATICI ---
     function init() {
         const menu = document.getElementById('side-left');
         if(menu) {
@@ -187,7 +155,7 @@
             });
         }
         fetchLiveMatches();
-        setInterval(fetchLiveMatches, 60000); // 1 dakikada bir güncelle
+        setInterval(fetchLiveMatches, 60000);
     }
 
     document.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
